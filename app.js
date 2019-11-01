@@ -16,6 +16,8 @@ var User = require("./models/user");
 var app = express();
 app.set("view engine", "ejs");
 
+app.use(bodyParser.urlencoded({extended: true}));
+
 app.use(require("express-session")({
   secret: "Just a few English words",
   resave: false,
@@ -33,13 +35,32 @@ passport.deserializeUser(User.deserializeUser());
 
 // ========= Routes =========
 
-
+// Root Route - The homepage
 app.get("/", function(req, res){
   res.render("home");
 });
 
+// Secrete Route - Can only be accessed once the user is autherised
 app.get("/secret", function(req, res){
   res.render("secret");
+});
+
+// Show Route - Displays registration page
+app.get("/register", function(req, res){
+  res.render("register");
+});
+
+// Show Route - Handles user sign up
+app.post("/register", function(req, res){
+  User.register(new User({username: req.body.username}), req.body.password, function(err, user){
+    if(err) {
+      console.log(err);
+      return res.render('register');
+    }
+    passport.authenticate("local")(req, res, function(){
+      res.redirect("/secret");
+    });
+  });
 });
 
 app.listen(3000, function() {
