@@ -76,6 +76,12 @@ app.post("/login", passport.authenticate("local", {
       res.render("login");
 });
 
+// Show Route - Displays login page
+app.get("/logout", function(req, res){
+  req.logout();
+  res.redirect("/");
+});
+
 app.listen(3000, function() {
   console.log("App listening on port 3000");
 });
