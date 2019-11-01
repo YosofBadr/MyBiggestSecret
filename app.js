@@ -28,9 +28,9 @@ app.use(require("express-session")({
 app.use(passport.initialize());
 app.use(passport.session());
 
+passport.use(new passportLocal(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
-
 
 
 // ========= Routes =========
@@ -50,7 +50,7 @@ app.get("/register", function(req, res){
   res.render("register");
 });
 
-// Show Route - Handles user sign up
+// Register Route - Handles user sign up
 app.post("/register", function(req, res){
   User.register(new User({username: req.body.username}), req.body.password, function(err, user){
     if(err) {
@@ -61,6 +61,19 @@ app.post("/register", function(req, res){
       res.redirect("/secret");
     });
   });
+});
+
+// Show Route - Displays login page
+app.get("/login", function(req, res){
+  res.render("login");
+});
+
+// Login Route - Handles user login
+app.post("/login", passport.authenticate("local", {
+  successRedirect: "/secret",
+  failureRedirect: "/login" }), 
+    function(req, res) {
+      res.render("login");
 });
 
 app.listen(3000, function() {
